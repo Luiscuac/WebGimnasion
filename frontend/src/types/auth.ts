@@ -1,0 +1,23 @@
+// ESTRUCTURA DEL USUARIO AUTENTICADO
+export interface User {
+  id: number;
+  username: string;
+  nombre: string;
+  role: string;
+}
+
+// RESPUESTA DEL LOGIN
+export interface LoginResponse {
+  token: string;
+  usuario: User;
+}
+
+// ESTRUCTURA DE UN EJERCICIO
+export interface Ejercicio {
+  id?: number;
+  nombre: string;
+  grupoMuscular: string;
+  maquina: string;
+  series: number;
+  repeticiones: number;
+}
