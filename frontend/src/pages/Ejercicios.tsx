@@ -7,14 +7,13 @@ import {
   updateEjercicio,
   deleteEjercicio,
 } from "../services/ejercicioService";
+import { Helmet } from "react-helmet-async";
 
 export default function Ejercicios() {
   const user = getUser();
   const isAdmin = user?.role === "Administrador";
 
-  // LISTA DE EJERCICIOS
   const [ejercicios, setEjercicios] = useState<Ejercicio[]>([]);
-  // EJERCICIO DEL FORMULARIO
   const [form, setForm] = useState<Ejercicio>({
     nombre: "",
     grupoMuscular: "",
@@ -22,62 +21,42 @@ export default function Ejercicios() {
     series: 0,
     repeticiones: 0,
   });
-  // ID DEL EJERCICIO EN EDICION
   const [editandoId, setEditandoId] = useState<number | null>(null);
-  // MENSAJES
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // CARGA LOS EJERCICIOS AL INICIAR
   useEffect(() => {
     cargarEjercicios();
   }, []);
 
   async function cargarEjercicios() {
+    setLoading(true);
     try {
       const data = await getEjercicios();
       setEjercicios(data);
     } catch {
       setError("Error al cargar ejercicios.");
+    } finally {
+      setLoading(false);
     }
   }
 
-  // MANEJA CAMBIOS EN EL FORMULARIO
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  // ENVIAR FORMULARIO (CREAR O EDITAR)
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMensaje("");
     setError("");
 
-    // VALIDACIONES
-    if (!form.nombre.trim()) {
-      setError("El nombre es obligatorio.");
-      return;
-    }
-    if (form.nombre.trim().length < 3) {
-      setError("El nombre debe tener al menos 3 caracteres.");
-      return;
-    }
-    if (!form.grupoMuscular.trim()) {
-      setError("El grupo muscular es obligatorio.");
-      return;
-    }
-    if (!form.maquina.trim()) {
-      setError("La máquina es obligatoria.");
-      return;
-    }
-    if (form.series <= 0) {
-      setError("Las series deben ser mayor a 0.");
-      return;
-    }
-    if (form.repeticiones <= 0) {
-      setError("Las repeticiones deben ser mayor a 0.");
-      return;
-    }
+    if (!form.nombre.trim()) { setError("El nombre es obligatorio."); return; }
+    if (form.nombre.trim().length < 3) { setError("El nombre debe tener al menos 3 caracteres."); return; }
+    if (!form.grupoMuscular.trim()) { setError("El grupo muscular es obligatorio."); return; }
+    if (!form.maquina.trim()) { setError("La máquina es obligatoria."); return; }
+    if (form.series <= 0) { setError("Las series deben ser mayor a 0."); return; }
+    if (form.repeticiones <= 0) { setError("Las repeticiones deben ser mayor a 0."); return; }
 
     try {
       if (editandoId !== null) {
@@ -87,14 +66,7 @@ export default function Ejercicios() {
         await createEjercicio(form);
         setMensaje("Ejercicio creado con éxito.");
       }
-      // LIMPIA EL FORMULARIO
-      setForm({
-        nombre: "",
-        grupoMuscular: "",
-        maquina: "",
-        series: 0,
-        repeticiones: 0,
-      });
+      setForm({ nombre: "", grupoMuscular: "", maquina: "", series: 0, repeticiones: 0 });
       setEditandoId(null);
       cargarEjercicios();
     } catch {
@@ -102,7 +74,6 @@ export default function Ejercicios() {
     }
   }
 
-  // CARGAR DATOS EN EL FORMULARIO PARA EDITAR
   function handleEditar(ejercicio: Ejercicio) {
     setForm({
       nombre: ejercicio.nombre,
@@ -114,9 +85,9 @@ export default function Ejercicios() {
     setEditandoId(ejercicio.id!);
     setMensaje("");
     setError("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // ELIMINAR EJERCICIO
   async function handleEliminar(id: number) {
     if (!confirm("¿Estás seguro de eliminar este ejercicio?")) return;
     try {
@@ -128,15 +99,8 @@ export default function Ejercicios() {
     }
   }
 
-  // CANCELAR EDICION
   function handleCancelar() {
-    setForm({
-      nombre: "",
-      grupoMuscular: "",
-      maquina: "",
-      series: 0,
-      repeticiones: 0,
-    });
+    setForm({ nombre: "", grupoMuscular: "", maquina: "", series: 0, repeticiones: 0 });
     setEditandoId(null);
     setMensaje("");
     setError("");
@@ -144,124 +108,173 @@ export default function Ejercicios() {
 
   return (
     <div>
-      <h1>Gestión de Ejercicios</h1>
+      <Helmet>
+        <title>Gestión de Ejercicios | GymFlow</title>
+        <meta name="description" content="Gestiona tus ejercicios y rutinas en GymFlow." />
+        <meta name="keywords" content="ejercicios, rutinas, gimnasio, GymFlow" />
+        <meta name="author" content="TuNombre" />
+        <meta property="og:title" content="Gestión de Ejercicios - GymFlow" />
+        <meta property="og:description" content="Gestiona tus ejercicios y rutinas en GymFlow." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <div className="page-header">
+        <h1>Gestión de Ejercicios</h1>
+        <p>
+          {isAdmin
+            ? "Crea, edita y elimina ejercicios del sistema."
+            : "Visualiza los ejercicios registrados."}
+        </p>
+      </div>
 
-      {/* FORMULARIO SOLO PARA ADMINISTRADOR */}
+      {/* FORMULARIO SOLO ADMINISTRADOR */}
       {isAdmin && (
-        <div>
-          <h2>{editandoId !== null ? "Editar Ejercicio" : "Nuevo Ejercicio"}</h2>
+        <div className="card" style={{ marginBottom: "2rem" }}>
+          <h2 style={{ marginBottom: "1.25rem", fontSize: "1.1rem", fontWeight: "700" }}>
+            {editandoId !== null ? "✏️ Editar Ejercicio" : "➕ Nuevo Ejercicio"}
+          </h2>
+
           <form onSubmit={handleSubmit}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem" }}>
+              <div className="form-group">
+                <label htmlFor="nombre">Nombre</label>
+                <input
+                  id="nombre"
+                  type="text"
+                  name="nombre"
+                  value={form.nombre}
+                  onChange={handleChange}
+                  placeholder="Ej: Press de banca"
+                />
+              </div>
 
-            <label>Nombre</label>
-            <br />
-            <input
-              type="text"
-              name="nombre"
-              value={form.nombre}
-              onChange={handleChange}
-              placeholder="Ej: Press de banca"
-            />
-            <br /><br />
+              <div className="form-group">
+                <label htmlFor="grupoMuscular">Grupo Muscular</label>
+                <input
+                  id="grupoMuscular"
+                  type="text"
+                  name="grupoMuscular"
+                  value={form.grupoMuscular}
+                  onChange={handleChange}
+                  placeholder="Ej: Pecho"
+                />
+              </div>
 
-            <label>Grupo Muscular</label>
-            <br />
-            <input
-              type="text"
-              name="grupoMuscular"
-              value={form.grupoMuscular}
-              onChange={handleChange}
-              placeholder="Ej: Pecho"
-            />
-            <br /><br />
+              <div className="form-group">
+                <label htmlFor="maquina">Máquina</label>
+                <input
+                  id="maquina"
+                  type="text"
+                  name="maquina"
+                  value={form.maquina}
+                  onChange={handleChange}
+                  placeholder="Ej: Barra libre"
+                />
+              </div>
 
-            <label>Máquina</label>
-            <br />
-            <input
-              type="text"
-              name="maquina"
-              value={form.maquina}
-              onChange={handleChange}
-              placeholder="Ej: Barra libre"
-            />
-            <br /><br />
+              <div className="form-group">
+                <label htmlFor="series">Series</label>
+                <input
+                  id="series"
+                  type="number"
+                  name="series"
+                  value={form.series}
+                  onChange={handleChange}
+                  placeholder="Ej: 4"
+                />
+              </div>
 
-            <label>Series</label>
-            <br />
-            <input
-              type="number"
-              name="series"
-              value={form.series}
-              onChange={handleChange}
-              placeholder="Ej: 4"
-            />
-            <br /><br />
+              <div className="form-group">
+                <label htmlFor="repeticiones">Repeticiones</label>
+                <input
+                  id="repeticiones"
+                  type="number"
+                  name="repeticiones"
+                  value={form.repeticiones}
+                  onChange={handleChange}
+                  placeholder="Ej: 10"
+                />
+              </div>
+            </div>
 
-            <label>Repeticiones</label>
-            <br />
-            <input
-              type="number"
-              name="repeticiones"
-              value={form.repeticiones}
-              onChange={handleChange}
-              placeholder="Ej: 10"
-            />
-            <br /><br />
+            {mensaje && <div className="alert-success">{mensaje}</div>}
+            {error && <div className="alert-error">{error}</div>}
 
-            <button type="submit">
-              {editandoId !== null ? "Actualizar" : "Guardar"}
-            </button>
-            {" "}
-            {editandoId !== null && (
-              <button type="button" onClick={handleCancelar}>
-                Cancelar
+            <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+              <button type="submit" className="btn btn-primary">
+                {editandoId !== null ? "Actualizar" : "Guardar"}
               </button>
-            )}
+              {editandoId !== null && (
+                <button type="button" className="btn btn-secondary" onClick={handleCancelar}>
+                  Cancelar
+                </button>
+              )}
+            </div>
           </form>
         </div>
       )}
 
-      {/* MENSAJES */}
-      {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {/* MENSAJES PARA USUARIO NO ADMIN */}
+      {!isAdmin && mensaje && <div className="alert-success">{mensaje}</div>}
+      {!isAdmin && error && <div className="alert-error">{error}</div>}
 
-      {/* TABLA DE EJERCICIOS */}
-      <h2>Lista de Ejercicios</h2>
-      {ejercicios.length === 0 ? (
-        <p>No hay ejercicios registrados.</p>
-      ) : (
-        <table border={1}>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Grupo Muscular</th>
-              <th>Máquina</th>
-              <th>Series</th>
-              <th>Repeticiones</th>
-              {isAdmin && <th>Acciones</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {ejercicios.map((ej) => (
-              <tr key={ej.id}>
-                <td>{ej.nombre}</td>
-                <td>{ej.grupoMuscular}</td>
-                <td>{ej.maquina}</td>
-                <td>{ej.series}</td>
-                <td>{ej.repeticiones}</td>
-                {isAdmin && (
-                  <td>
-                    <button onClick={() => handleEditar(ej)}>Editar</button>
-                    {" "}
-                    <button onClick={() => handleEliminar(ej.id!)}>
-                      Eliminar
-                    </button>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {/* TABLA */}
+      <div className="card">
+        <h2 style={{ marginBottom: "1.25rem", fontSize: "1.1rem", fontWeight: "700" }}>
+          📋 Lista de Ejercicios
+        </h2>
+
+        {loading ? (
+          <p style={{ color: "var(--text-muted)" }}>Cargando...</p>
+        ) : ejercicios.length === 0 ? (
+          <p style={{ color: "var(--text-muted)" }}>No hay ejercicios registrados.</p>
+        ) : (
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Grupo Muscular</th>
+                  <th>Máquina</th>
+                  <th>Series</th>
+                  <th>Repeticiones</th>
+                  {isAdmin && <th>Acciones</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {ejercicios.map((ej) => (
+                  <tr key={ej.id}>
+                    <td style={{ fontWeight: "600" }}>{ej.nombre}</td>
+                    <td>{ej.grupoMuscular}</td>
+                    <td>{ej.maquina}</td>
+                    <td>{ej.series}</td>
+                    <td>{ej.repeticiones}</td>
+                    {isAdmin && (
+                      <td>
+                        <div style={{ display: "flex", gap: "0.5rem" }}>
+                          <button
+                            className="btn btn-secondary"
+                            style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                            onClick={() => handleEditar(ej)}
+                          >
+                            ✏️ Editar
+                          </button>
+                          <button
+                            className="btn btn-danger"
+                            style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                            onClick={() => handleEliminar(ej.id!)}
+                          >
+                            🗑️ Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -178,6 +178,26 @@ a {
 /* ===========================
    TOPBAR (NAVBAR PÚBLICO)
 =========================== */
+.mobile-topbar {
+  display: none;
+  width: 100%;
+  height: 64px;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+@media (max-width: 768px) {
+  .mobile-topbar {
+    display: flex;
+  }
+}
+
 .topbar {
   width: 100%;
   height: 64px;
@@ -656,5 +676,13 @@ tbody td {
 
   .topbar-links {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.5rem 1.25rem;
+    margin: 1rem;
+    border-radius: 10px;
   }
 }

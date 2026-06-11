@@ -5,11 +5,11 @@ export default function PrivateLayout() {
   return (
     <div className="app-layout">
       <PrivateNavbar />
-      <div className="main-content">
+      <main className="main-content">
         <div className="page-content">
           <Outlet />
         </div>
-      </div>
+      </main>
     </div>
   );
 }

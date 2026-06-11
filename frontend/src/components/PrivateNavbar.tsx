@@ -6,7 +6,6 @@ export default function PrivateNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = getUser();
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") || "dark"
@@ -17,7 +16,6 @@ export default function PrivateNavbar() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // CIERRA EL MENU AL CAMBIAR DE RUTA
   useEffect(() => {
     setMenuOpen(false);
   }, [location]);
@@ -36,12 +34,8 @@ export default function PrivateNavbar() {
 
   return (
     <>
-      {/* TOPBAR MOBILE */}
-      <header className="topbar" style={{ display: "none" }}
-        ref={(el) => {
-          if (el) el.style.display = "flex";
-        }}
-      >
+      {/* TOPBAR SOLO VISIBLE EN MOBILE */}
+      <header className="mobile-topbar">
         <button
           className="hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -67,9 +61,7 @@ export default function PrivateNavbar() {
       <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">💪</div>
-          <div>
-            <h1>GymFlow</h1>
-          </div>
+          <h1>GymFlow</h1>
         </div>
 
         <nav className="sidebar-nav">
@@ -92,8 +84,11 @@ export default function PrivateNavbar() {
             <p>{user?.nombre}</p>
             <span>{user?.role}</span>
           </div>
-          <button className="theme-toggle" onClick={toggleTheme}
-            style={{ margin: "0 0.5rem" }}>
+          <button
+            className="theme-toggle"
+            onClick={toggleTheme}
+            style={{ margin: "0.5rem" }}
+          >
             {theme === "dark" ? "☀️ Modo claro" : "🌙 Modo oscuro"}
           </button>
           <button className="sidebar-link" onClick={handleLogout}>

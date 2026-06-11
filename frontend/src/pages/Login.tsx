@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
 import { saveToken, saveUser } from "../utils/auth";
+import { Helmet } from "react-helmet-async";
+
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,7 +40,18 @@ export default function Login() {
   };
 
   return (
+
+        
     <div className="login-page">
+        <Helmet>
+            <title>Iniciar Sesión | GymFlow</title>
+            <meta name="description" content="Inicia sesión en GymFlow para gestionar tus ejercicios y rutinas." />
+            <meta name="keywords" content="login, acceso, gimnasio, GymFlow" />
+            <meta name="author" content="TuNombre" />
+            <meta property="og:title" content="Login - GymFlow" />
+            <meta property="og:description" content="Accede a tu cuenta de GymFlow." />
+            <meta property="og:type" content="website" />
+        </Helmet>
       <div className="login-card">
         <h1>💪 GymFlow</h1>
         <p>Inicia sesión para continuar</p>

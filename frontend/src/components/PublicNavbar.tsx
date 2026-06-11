@@ -18,9 +18,14 @@ export default function PublicNavbar() {
   return (
     <header className="topbar">
       <span className="topbar-logo">💪 GymFlow</span>
+      
       <nav className="topbar-links">
         <Link to="/">Inicio</Link>
-        <Link to="/login">Login</Link>
+        <Link to="/login">
+          <button className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+            Login
+          </button>
+        </Link>
       </nav>
       <button className="theme-toggle" onClick={toggleTheme}>
         {theme === "dark" ? "☀️" : "🌙"}

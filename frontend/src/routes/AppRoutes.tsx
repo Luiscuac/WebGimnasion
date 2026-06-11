@@ -1,17 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// PÁGINAS
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Ejercicios from "../pages/Ejercicios";
+import ExploreAPI from "../pages/ExploreAPI";
+import Perfil from "../pages/Perfil";
 import NotFound from "../pages/NotFound";
 
-// LAYOUTS
 import PublicLayout from "../layouts/PublicLayout";
 import PrivateLayout from "../layouts/PrivateLayout";
-
-// RUTAS PROTEGIDAS
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
 
@@ -43,6 +41,8 @@ export default function AppRoutes() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/ejercicios" element={<Ejercicios />} />
+          <Route path="/explorar" element={<ExploreAPI />} />
+          <Route path="/perfil" element={<Perfil />} />
         </Route>
 
         {/* 404 */}

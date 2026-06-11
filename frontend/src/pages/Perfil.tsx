@@ -1,10 +1,20 @@
 import { getUser } from "../utils/auth";
-
+import { Helmet } from "react-helmet-async";
+    
 export default function Perfil() {
   const user = getUser();
 
   return (
     <div>
+      <Helmet>
+        <title>Mi Perfil | GymFlow</title>
+        <meta name="description" content="Visualiza tu perfil en GymFlow." />
+        <meta name="keywords" content="perfil, cuenta, gimnasio, GymFlow" />
+        <meta name="author" content="TuNombre" />
+        <meta property="og:title" content="Mi Perfil - GymFlow" />
+        <meta property="og:description" content="Visualiza  tu perfil en GymFlow." />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <div className="page-header">
         <h1>Mi Perfil</h1>
         <p>Información de tu cuenta</p>
