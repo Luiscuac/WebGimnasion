@@ -85,9 +85,8 @@ export default function PrivateNavbar() {
             <span>{user?.role}</span>
           </div>
           <button
-            className="theme-toggle"
+            className="theme-toggle theme-toggle-sidebar"
             onClick={toggleTheme}
-            style={{ margin: "0.5rem" }}
           >
             {theme === "dark" ? "☀️ Modo claro" : "🌙 Modo oscuro"}
           </button>

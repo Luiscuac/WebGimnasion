@@ -3,19 +3,21 @@ import { Helmet } from "react-helmet-async";
 import { getEjercicios } from "../services/ejercicioService";
 import { useEffect, useState } from "react";
 
-
 export default function Dashboard() {
   const user = getUser();
-  const [totalEjercicios, setTotalEjercicios] = useState('—');
-  const [totalMusculares, setTotalMusculares] = useState('—');
+
+  const [totalEjercicios, setTotalEjercicios] = useState("—");
+  const [totalMusculares, setTotalMusculares] = useState("—");
 
   useEffect(() => {
-    getEjercicios().then(data => {
+    getEjercicios()
+      .then((data) => {
         setTotalEjercicios(String(data.length));
-        const grupos = new Set(data.map(e => e.grupoMuscular));
+        const grupos = new Set(data.map((e) => e.grupoMuscular));
         setTotalMusculares(String(grupos.size));
-    }).catch(() => {});
-   }, []);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div>
@@ -28,6 +30,7 @@ export default function Dashboard() {
         <meta property="og:description" content="Panel de control de GymFlow para gestionar tus ejercicios y rutinas." />
         <meta property="og:type" content="website" />
       </Helmet>
+
       <div className="page-header">
         <h1>Dashboard</h1>
         <p>Bienvenido de vuelta, {user?.nombre}</p>
@@ -41,6 +44,7 @@ export default function Dashboard() {
           </div>
           <div className="stat-card-icon">🏋️</div>
         </div>
+
         <div className="stat-card">
           <div>
             <p>Grupos Musculares</p>
@@ -48,18 +52,19 @@ export default function Dashboard() {
           </div>
           <div className="stat-card-icon">💪</div>
         </div>
+
         <div className="stat-card">
           <div>
             <p>Rol</p>
-            <h3 style={{ fontSize: "1rem", marginTop: "0.25rem" }}>{user?.role}</h3>
+            <h3 className="stat-card-role">{user?.role}</h3>
           </div>
           <div className="stat-card-icon">👤</div>
         </div>
       </div>
 
       <div className="card">
-        <h2 style={{ marginBottom: "0.5rem" }}>¿Qué puedes hacer?</h2>
-        <ul style={{ paddingLeft: "1.25rem", color: "var(--text-muted)", lineHeight: "2" }}>
+        <h2 className="card-title">¿Qué puedes hacer?</h2>
+        <ul className="dashboard-list">
           <li>Ver y gestionar ejercicios en <strong>Ejercicios</strong></li>
           <li>Explorar ejercicios de la API pública en <strong>Explorar API</strong></li>
           <li>Ver tu información en <strong>Perfil</strong></li>

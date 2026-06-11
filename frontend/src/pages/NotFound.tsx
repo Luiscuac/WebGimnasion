@@ -13,6 +13,7 @@ export default function NotFound() {
         <meta property="og:description" content="La página que buscas no existe en GymFlow." />
         <meta property="og:type" content="website" />
       </Helmet>
+
       <h1>404</h1>
       <p>Esta página no existe.</p>
       <Link to="/">

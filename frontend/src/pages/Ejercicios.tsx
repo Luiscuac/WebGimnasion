@@ -117,6 +117,7 @@ export default function Ejercicios() {
         <meta property="og:description" content="Gestiona tus ejercicios y rutinas en GymFlow." />
         <meta property="og:type" content="website" />
       </Helmet>
+
       <div className="page-header">
         <h1>Gestión de Ejercicios</h1>
         <p>
@@ -128,13 +129,13 @@ export default function Ejercicios() {
 
       {/* FORMULARIO SOLO ADMINISTRADOR */}
       {isAdmin && (
-        <div className="card" style={{ marginBottom: "2rem" }}>
-          <h2 style={{ marginBottom: "1.25rem", fontSize: "1.1rem", fontWeight: "700" }}>
+        <div className="card card-form">
+          <h2 className="card-subtitle">
             {editandoId !== null ? "✏️ Editar Ejercicio" : "➕ Nuevo Ejercicio"}
           </h2>
 
           <form onSubmit={handleSubmit}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem" }}>
+            <div className="form-grid">
               <div className="form-group">
                 <label htmlFor="nombre">Nombre</label>
                 <input
@@ -199,7 +200,7 @@ export default function Ejercicios() {
             {mensaje && <div className="alert-success">{mensaje}</div>}
             {error && <div className="alert-error">{error}</div>}
 
-            <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+            <div className="form-actions">
               <button type="submit" className="btn btn-primary">
                 {editandoId !== null ? "Actualizar" : "Guardar"}
               </button>
@@ -219,14 +220,12 @@ export default function Ejercicios() {
 
       {/* TABLA */}
       <div className="card">
-        <h2 style={{ marginBottom: "1.25rem", fontSize: "1.1rem", fontWeight: "700" }}>
-          📋 Lista de Ejercicios
-        </h2>
+        <h2 className="card-subtitle">📋 Lista de Ejercicios</h2>
 
         {loading ? (
-          <p style={{ color: "var(--text-muted)" }}>Cargando...</p>
+          <p className="text-muted">Cargando...</p>
         ) : ejercicios.length === 0 ? (
-          <p style={{ color: "var(--text-muted)" }}>No hay ejercicios registrados.</p>
+          <p className="text-muted">No hay ejercicios registrados.</p>
         ) : (
           <div className="table-wrapper">
             <table>
@@ -243,24 +242,22 @@ export default function Ejercicios() {
               <tbody>
                 {ejercicios.map((ej) => (
                   <tr key={ej.id}>
-                    <td style={{ fontWeight: "600" }}>{ej.nombre}</td>
+                    <td className="td-bold">{ej.nombre}</td>
                     <td>{ej.grupoMuscular}</td>
                     <td>{ej.maquina}</td>
                     <td>{ej.series}</td>
                     <td>{ej.repeticiones}</td>
                     {isAdmin && (
                       <td>
-                        <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <div className="table-actions">
                           <button
-                            className="btn btn-secondary"
-                            style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                            className="btn btn-secondary btn-sm"
                             onClick={() => handleEditar(ej)}
                           >
                             ✏️ Editar
                           </button>
                           <button
-                            className="btn btn-danger"
-                            style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                            className="btn btn-danger btn-sm"
                             onClick={() => handleEliminar(ej.id!)}
                           >
                             🗑️ Eliminar

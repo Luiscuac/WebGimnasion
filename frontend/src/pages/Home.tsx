@@ -5,7 +5,6 @@ import heroImg from "../assets/hero.png";
 export default function Home() {
   return (
     <div className="hero">
-
       <Helmet>
         <title>GymFlow | Inicio</title>
         <meta name="description" content="GymFlow: gestiona ejercicios, explora rutinas y lleva el control de tu entrenamiento en un solo lugar." />
@@ -18,13 +17,24 @@ export default function Home() {
       </Helmet>
 
       <div>
-        <h1>Entrena más inteligente <br /><span>con GymFlow</span></h1>
-        <p>Gestiona ejercicios, explora rutinas y lleva el control de tu entrenamiento en un solo lugar.</p>
+        <h1>
+          Entrena más inteligente <br />
+          <span>con GymFlow</span>
+        </h1>
+        <p>
+          Gestiona ejercicios, explora rutinas y lleva el control
+          de tu entrenamiento en un solo lugar.
+        </p>
         <Link to="/login">
-          <button className="btn btn-primary" style={{ fontSize: "1rem", padding: "0.75rem 2rem" }}>
+          <button className="btn btn-primary btn-hero">
             Comenzar ahora
           </button>
         </Link>
+        <img
+          src={heroImg}
+          alt="Persona entrenando en el gimnasio con GymFlow"
+          className="hero-img"
+        />
       </div>
     </div>
   );
