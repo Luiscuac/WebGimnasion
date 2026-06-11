@@ -3,9 +3,13 @@ import PrivateNavbar from "../components/PrivateNavbar";
 
 export default function PrivateLayout() {
   return (
-    <div>
+    <div className="app-layout">
       <PrivateNavbar />
-      <Outlet />
+      <div className="main-content">
+        <div className="page-content">
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 }
