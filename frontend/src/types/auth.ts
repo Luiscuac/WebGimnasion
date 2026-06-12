@@ -20,7 +20,7 @@ export interface Ejercicio {
   maquina: string;
   series: number;
   repeticiones: number;
-  
+  imagenUrl?: string;
 }
 
 // DATOS PARA REGISTRO

@@ -4,7 +4,6 @@ import { getToken } from "../utils/auth";
 
 const API_URL = "http://localhost:5000/api";
 
-// HEADERS CON EL TOKEN JWT
 function getHeaders() {
   return {
     headers: {
@@ -13,19 +12,24 @@ function getHeaders() {
   };
 }
 
-// OBTENER TODOS LOS EJERCICIOS
-export async function getEjercicios(): Promise<Ejercicio[]> {
-  const response = await axios.get<Ejercicio[]>(
-    `${API_URL}/ejercicios`,
-    getHeaders()
-  );
+// OBTENER EJERCICIOS (con filtros opcionales)
+export async function getEjercicios(filtros?: {
+  nombre?: string;
+  grupoMuscular?: string;
+}): Promise<Ejercicio[]> {
+  const params: Record<string, string> = {};
+  if (filtros?.nombre) params.nombre = filtros.nombre;
+  if (filtros?.grupoMuscular) params.grupoMuscular = filtros.grupoMuscular;
+
+  const response = await axios.get<Ejercicio[]>(`${API_URL}/ejercicios`, {
+    ...getHeaders(),
+    params,
+  });
   return response.data;
 }
 
 // CREAR EJERCICIO
-export async function createEjercicio(
-  ejercicio: Ejercicio
-): Promise<Ejercicio> {
+export async function createEjercicio(ejercicio: Ejercicio): Promise<Ejercicio> {
   const response = await axios.post<Ejercicio>(
     `${API_URL}/ejercicios`,
     ejercicio,
@@ -35,15 +39,8 @@ export async function createEjercicio(
 }
 
 // EDITAR EJERCICIO
-export async function updateEjercicio(
-  id: number,
-  ejercicio: Ejercicio
-): Promise<void> {
-  await axios.put(
-    `${API_URL}/ejercicios/${id}`,
-    ejercicio,
-    getHeaders()
-  );
+export async function updateEjercicio(id: number, ejercicio: Ejercicio): Promise<void> {
+  await axios.put(`${API_URL}/ejercicios/${id}`, ejercicio, getHeaders());
 }
 
 // ELIMINAR EJERCICIO

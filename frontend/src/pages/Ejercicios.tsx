@@ -9,32 +9,59 @@ import {
 } from "../services/ejercicioService";
 import { Helmet } from "react-helmet-async";
 
+const FORM_VACIO: Ejercicio = {
+  nombre: "",
+  grupoMuscular: "",
+  maquina: "",
+  series: 0,
+  repeticiones: 0,
+  imagenUrl: "",
+};
+
 export default function Ejercicios() {
   const user = getUser();
   const isAdmin = user?.role === "Administrador";
 
   const [ejercicios, setEjercicios] = useState<Ejercicio[]>([]);
-  const [form, setForm] = useState<Ejercicio>({
-    nombre: "",
-    grupoMuscular: "",
-    maquina: "",
-    series: 0,
-    repeticiones: 0,
-  });
+  const [form, setForm] = useState<Ejercicio>(FORM_VACIO);
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // FILTROS
+  const [busqueda, setBusqueda] = useState("");
+  const [grupoFiltro, setGrupoFiltro] = useState("todos");
+  const [grupos, setGrupos] = useState<string[]>([]);
+
   useEffect(() => {
     cargarEjercicios();
   }, []);
 
+  // Debounce de búsqueda + filtro de grupo
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      cargarEjercicios();
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [busqueda, grupoFiltro]);
+
   async function cargarEjercicios() {
     setLoading(true);
     try {
-      const data = await getEjercicios();
+      const data = await getEjercicios({
+        nombre: busqueda || undefined,
+        grupoMuscular: grupoFiltro !== "todos" ? grupoFiltro : undefined,
+      });
       setEjercicios(data);
+
+      // Actualiza la lista de grupos musculares disponibles solo en la carga inicial sin filtros
+      if (!busqueda && grupoFiltro === "todos") {
+        const gruposUnicos = Array.from(
+          new Set(data.map((e) => e.grupoMuscular).filter(Boolean))
+        );
+        setGrupos(gruposUnicos);
+      }
     } catch {
       setError("Error al cargar ejercicios.");
     } finally {
@@ -43,7 +70,11 @@ export default function Ejercicios() {
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({
+      ...form,
+      [name]: name === "series" || name === "repeticiones" ? Number(value) : value,
+    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -58,6 +89,14 @@ export default function Ejercicios() {
     if (form.series <= 0) { setError("Las series deben ser mayor a 0."); return; }
     if (form.repeticiones <= 0) { setError("Las repeticiones deben ser mayor a 0."); return; }
 
+    if (form.imagenUrl && form.imagenUrl.trim()) {
+      const urlRegex = /^https?:\/\/.+/i;
+      if (!urlRegex.test(form.imagenUrl.trim())) {
+        setError("La URL de la imagen debe comenzar con http:// o https://");
+        return;
+      }
+    }
+
     try {
       if (editandoId !== null) {
         await updateEjercicio(editandoId, form);
@@ -66,7 +105,7 @@ export default function Ejercicios() {
         await createEjercicio(form);
         setMensaje("Ejercicio creado con éxito.");
       }
-      setForm({ nombre: "", grupoMuscular: "", maquina: "", series: 0, repeticiones: 0 });
+      setForm(FORM_VACIO);
       setEditandoId(null);
       cargarEjercicios();
     } catch {
@@ -81,6 +120,7 @@ export default function Ejercicios() {
       maquina: ejercicio.maquina,
       series: ejercicio.series,
       repeticiones: ejercicio.repeticiones,
+      imagenUrl: ejercicio.imagenUrl ?? "",
     });
     setEditandoId(ejercicio.id!);
     setMensaje("");
@@ -100,7 +140,7 @@ export default function Ejercicios() {
   }
 
   function handleCancelar() {
-    setForm({ nombre: "", grupoMuscular: "", maquina: "", series: 0, repeticiones: 0 });
+    setForm(FORM_VACIO);
     setEditandoId(null);
     setMensaje("");
     setError("");
@@ -195,7 +235,32 @@ export default function Ejercicios() {
                   placeholder="Ej: 10"
                 />
               </div>
+
+              <div className="form-group">
+                <label htmlFor="imagenUrl">Imagen de guía (URL)</label>
+                <input
+                  id="imagenUrl"
+                  type="text"
+                  name="imagenUrl"
+                  value={form.imagenUrl}
+                  onChange={handleChange}
+                  placeholder="https://ejemplo.com/imagen.png"
+                />
+              </div>
             </div>
+
+            {form.imagenUrl && form.imagenUrl.trim() && (
+              <div className="form-preview">
+                <p className="field-label">Vista previa</p>
+                <img
+                  src={form.imagenUrl}
+                  alt="Vista previa de la guía del ejercicio"
+                  className="form-preview-img"
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                  onLoad={(e) => (e.currentTarget.style.display = "block")}
+                />
+              </div>
+            )}
 
             {mensaje && <div className="alert-success">{mensaje}</div>}
             {error && <div className="alert-error">{error}</div>}
@@ -218,6 +283,36 @@ export default function Ejercicios() {
       {!isAdmin && mensaje && <div className="alert-success">{mensaje}</div>}
       {!isAdmin && error && <div className="alert-error">{error}</div>}
 
+      {/* BARRA DE FILTROS */}
+      <div className="card card-filters">
+        <div className="filters-row">
+          <div className="form-group filters-search">
+            <label htmlFor="busqueda">Buscar por nombre</label>
+            <input
+              id="busqueda"
+              type="text"
+              placeholder="Ej: Press de banca"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group filters-select">
+            <label htmlFor="grupoFiltro">Grupo muscular</label>
+            <select
+              id="grupoFiltro"
+              value={grupoFiltro}
+              onChange={(e) => setGrupoFiltro(e.target.value)}
+            >
+              <option value="todos">Todos</option>
+              {grupos.map((g) => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
       {/* TABLA */}
       <div className="card">
         <h2 className="card-subtitle">📋 Lista de Ejercicios</h2>
@@ -225,12 +320,13 @@ export default function Ejercicios() {
         {loading ? (
           <p className="text-muted">Cargando...</p>
         ) : ejercicios.length === 0 ? (
-          <p className="text-muted">No hay ejercicios registrados.</p>
+          <p className="text-muted">No hay ejercicios que coincidan con la búsqueda.</p>
         ) : (
           <div className="table-wrapper">
             <table>
               <thead>
                 <tr>
+                  <th>Imagen</th>
                   <th>Nombre</th>
                   <th>Grupo Muscular</th>
                   <th>Máquina</th>
@@ -242,6 +338,18 @@ export default function Ejercicios() {
               <tbody>
                 {ejercicios.map((ej) => (
                   <tr key={ej.id}>
+                    <td>
+                      {ej.imagenUrl ? (
+                        <img
+                          src={ej.imagenUrl}
+                          alt={`Guía del ejercicio ${ej.nombre}`}
+                          className="table-thumb"
+                          onError={(e) => (e.currentTarget.style.visibility = "hidden")}
+                        />
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
                     <td className="td-bold">{ej.nombre}</td>
                     <td>{ej.grupoMuscular}</td>
                     <td>{ej.maquina}</td>

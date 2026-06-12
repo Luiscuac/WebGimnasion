@@ -1123,3 +1123,67 @@ tbody td {
   color: var(--primary);
   font-weight: 600;
 }
+
+/* ===========================
+   FILTROS DE EJERCICIOS
+=========================== */
+.card-filters {
+  margin-bottom: 1.5rem;
+}
+
+.filters-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filters-search {
+  flex: 2;
+  min-width: 200px;
+  margin-bottom: 0;
+}
+
+.filters-select {
+  flex: 1;
+  min-width: 160px;
+  margin-bottom: 0;
+}
+
+.form-group select {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+  width: 100%;
+}
+
+.form-group select:focus {
+  border-color: var(--primary);
+}
+
+/* ===========================
+   IMAGEN DE GUÍA - PREVIEW Y TABLA
+=========================== */
+.form-preview {
+  margin-bottom: 1rem;
+}
+
+.form-preview-img {
+  max-width: 200px;
+  max-height: 140px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  object-fit: cover;
+  margin-top: 0.4rem;
+}
+
+.table-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
