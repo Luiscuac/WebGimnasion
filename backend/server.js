@@ -7,19 +7,15 @@ const app = express();
 const PORT = 5000;
 const JWT_SECRET = 'mi_clave_secreta_para_el_gym'; 
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Conexión a SQLite
 const db = new sqlite3.Database('./gym.db', (err) => {
     if (err) console.error("Error al abrir la BD:", err.message);
     else console.log("Conectado con éxito a la base de datos SQLite.");
 });
 
-// Crear tablas iniciales
 db.serialize(() => {
-    // 1. Tabla de Usuarios
     db.run(`CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
@@ -28,17 +24,19 @@ db.serialize(() => {
         role TEXT
     )`);
 
-    // 2. Tabla de Ejercicios (CORREGIDO AQUÍ)
     db.run(`CREATE TABLE IF NOT EXISTS ejercicios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT NOT NULL,
         grupoMuscular TEXT,
         maquina TEXT,
         series INTEGER,
-        repeticiones INTEGER
+        repeticiones INTEGER,
+        imagenUrl TEXT
     )`);
 
-    // Insertar usuarios de prueba por defecto
+    // Si la tabla ya existía sin la columna imagenUrl, la añadimos
+    db.run(`ALTER TABLE ejercicios ADD COLUMN imagenUrl TEXT`, () => {});
+
     db.get("SELECT COUNT(*) as count FROM usuarios", [], (err, row) => {
         if (row && row.count === 0) {
             db.run("INSERT INTO usuarios (username, password, nombre, role) VALUES (?, ?, ?, ?)", 
@@ -50,7 +48,6 @@ db.serialize(() => {
     });
 });
 
-// Middleware para verificar el Token JWT
 const verificarToken = (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) return res.status(403).json({ mensaje: "Token requerido." });
@@ -62,9 +59,16 @@ const verificarToken = (req, res, next) => {
     });
 };
 
-// ==================== RUTAS DE LA API ====================
+const esAdmin = (req, res, next) => {
+    if (req.usuario.role !== 'Administrador') {
+        return res.status(403).json({ mensaje: "Acceso denegado. Requiere rol Administrador." });
+    }
+    next();
+};
 
-// 1. Login (Autenticación JWT) [cite: 69]
+// ==================== AUTENTICACIÓN ====================
+
+// LOGIN
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -85,42 +89,132 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// 2. Leer todos los ejercicios (Accesible por ambos roles) [cite: 80, 87]
+// REGISTRO (siempre crea rol Usuario)
+app.post('/api/register', (req, res) => {
+    const { username, password, nombre } = req.body;
+
+    if (!username || !password || !nombre) {
+        return res.status(400).json({ mensaje: "Todos los campos son obligatorios." });
+    }
+    if (password.length < 6) {
+        return res.status(400).json({ mensaje: "La contraseña debe tener al menos 6 caracteres." });
+    }
+
+    db.get("SELECT id FROM usuarios WHERE username = ?", [username], (err, existente) => {
+        if (err) return res.status(500).json({ mensaje: "Error en el servidor." });
+        if (existente) return res.status(409).json({ mensaje: "Ese correo ya está registrado." });
+
+        db.run(
+            "INSERT INTO usuarios (username, password, nombre, role) VALUES (?, ?, ?, ?)",
+            [username, password, nombre, 'Usuario'],
+            function (err) {
+                if (err) return res.status(500).json({ mensaje: "Error al registrar usuario." });
+
+                const token = jwt.sign(
+                    { id: this.lastID, username, role: 'Usuario', nombre },
+                    JWT_SECRET,
+                    { expiresIn: '2h' }
+                );
+
+                res.status(201).json({
+                    token,
+                    usuario: { id: this.lastID, username, role: 'Usuario', nombre }
+                });
+            }
+        );
+    });
+});
+
+// ==================== GESTIÓN DE USUARIOS (SOLO ADMIN) ====================
+
+// LISTAR USUARIOS
+app.get('/api/usuarios', verificarToken, esAdmin, (req, res) => {
+    db.all("SELECT id, username, nombre, role FROM usuarios", [], (err, rows) => {
+        if (err) return res.status(500).json({ mensaje: "Error al obtener usuarios." });
+        res.json(rows);
+    });
+});
+
+// CAMBIAR ROL DE UN USUARIO
+app.put('/api/usuarios/:id/rol', verificarToken, esAdmin, (req, res) => {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!['Administrador', 'Usuario'].includes(role)) {
+        return res.status(400).json({ mensaje: "Rol inválido." });
+    }
+
+    // Evitar que el admin se quite el rol a sí mismo
+    if (parseInt(id) === req.usuario.id && role !== 'Administrador') {
+        return res.status(400).json({ mensaje: "No puedes quitarte tu propio rol de administrador." });
+    }
+
+    db.run("UPDATE usuarios SET role = ? WHERE id = ?", [role, id], function (err) {
+        if (err) return res.status(500).json({ mensaje: "Error al actualizar el rol." });
+        if (this.changes === 0) return res.status(404).json({ mensaje: "Usuario no encontrado." });
+        res.json({ mensaje: "Rol actualizado con éxito." });
+    });
+});
+
+// ELIMINAR USUARIO
+app.delete('/api/usuarios/:id', verificarToken, esAdmin, (req, res) => {
+    const { id } = req.params;
+
+    if (parseInt(id) === req.usuario.id) {
+        return res.status(400).json({ mensaje: "No puedes eliminar tu propia cuenta." });
+    }
+
+    db.run("DELETE FROM usuarios WHERE id = ?", [id], function (err) {
+        if (err) return res.status(500).json({ mensaje: "Error al eliminar usuario." });
+        if (this.changes === 0) return res.status(404).json({ mensaje: "Usuario no encontrado." });
+        res.json({ mensaje: "Usuario eliminado con éxito." });
+    });
+});
+
+// ==================== EJERCICIOS ====================
+
+// LEER TODOS (con filtros opcionales: ?nombre=&grupoMuscular=)
 app.get('/api/ejercicios', verificarToken, (req, res) => {
-    db.all("SELECT * FROM ejercicios", [], (err, rows) => {
+    const { nombre, grupoMuscular } = req.query;
+
+    let sql = "SELECT * FROM ejercicios WHERE 1=1";
+    const params = [];
+
+    if (nombre) {
+        sql += " AND nombre LIKE ?";
+        params.push(`%${nombre}%`);
+    }
+    if (grupoMuscular) {
+        sql += " AND grupoMuscular LIKE ?";
+        params.push(`%${grupoMuscular}%`);
+    }
+
+    db.all(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ mensaje: "Error al obtener ejercicios." });
         res.json(rows);
     });
 });
 
-// 3. Crear ejercicio (SOLO ADMINISTRADOR) [cite: 81, 89]
-app.post('/api/ejercicios', verificarToken, (req, res) => {
-    if (req.usuario.role !== 'Administrador') {
-        return res.status(403).json({ mensaje: "Acceso denegado. Requiere rol Administrador." });
-    }
-
-    const { nombre, grupoMuscular, maquina, series, repeticiones } = req.body;
-    db.run("INSERT INTO ejercicios (nombre, grupoMuscular, maquina, series, repeticiones) VALUES (?, ?, ?, ?, ?)",
-        [nombre, grupoMuscular, maquina, series, repeticiones],
+// CREAR (SOLO ADMIN)
+app.post('/api/ejercicios', verificarToken, esAdmin, (req, res) => {
+    const { nombre, grupoMuscular, maquina, series, repeticiones, imagenUrl } = req.body;
+    db.run("INSERT INTO ejercicios (nombre, grupoMuscular, maquina, series, repeticiones, imagenUrl) VALUES (?, ?, ?, ?, ?, ?)",
+        [nombre, grupoMuscular, maquina, series, repeticiones, imagenUrl || null],
         function(err) {
             if (err) return res.status(500).json({ mensaje: "Error al guardar." });
-            res.status(201).json({ id: this.lastID, nombre, grupoMuscular, maquina, series, repeticiones });
+            res.status(201).json({ id: this.lastID, nombre, grupoMuscular, maquina, series, repeticiones, imagenUrl });
         }
     );
 });
 
-// 4. Editar ejercicio (SOLO ADMINISTRADOR) [cite: 82, 90]
-app.put('/api/ejercicios/:id', verificarToken, (req, res) => {
-    if (req.usuario.role !== 'Administrador') {
-        return res.status(403).json({ mensaje: "Acceso denegado. Requiere rol Administrador." });
-    }
-
+// EDITAR (SOLO ADMIN)
+app.put('/api/ejercicios/:id', verificarToken, esAdmin, (req, res) => {
     const { id } = req.params;
-    const { nombre, grupoMuscular, maquina, series, repeticiones } = req.body;
+    const { nombre, grupoMuscular, maquina, series, repeticiones, imagenUrl } = req.body;
 
     db.run(
-        "UPDATE ejercicios SET nombre = ?, grupoMuscular = ?, maquina = ?, series = ?, repeticiones = ? WHERE id = ?",
-        [nombre, grupoMuscular, maquina, series, repeticiones, id],
+        "UPDATE ejercicios SET nombre = ?, grupoMuscular = ?, maquina = ?, series = ?, repeticiones = ?, imagenUrl = ? WHERE id = ?",
+        [nombre, grupoMuscular, maquina, series, repeticiones, imagenUrl || null, id],
         function(err) {
             if (err) return res.status(500).json({ mensaje: "Error al actualizar." });
             res.json({ mensaje: "Ejercicio actualizado con éxito." });
@@ -128,12 +222,8 @@ app.put('/api/ejercicios/:id', verificarToken, (req, res) => {
     );
 });
 
-// 5. Eliminar ejercicio (SOLO ADMINISTRADOR) [cite: 83, 91]
-app.delete('/api/ejercicios/:id', verificarToken, (req, res) => {
-    if (req.usuario.role !== 'Administrador') {
-        return res.status(403).json({ mensaje: "Acceso denegado. Requiere rol Administrador." });
-    }
-
+// ELIMINAR (SOLO ADMIN)
+app.delete('/api/ejercicios/:id', verificarToken, esAdmin, (req, res) => {
     const { id } = req.params;
     db.run("DELETE FROM ejercicios WHERE id = ?", [id], function(err) {
         if (err) return res.status(500).json({ mensaje: "Error al eliminar." });
@@ -141,7 +231,6 @@ app.delete('/api/ejercicios/:id', verificarToken, (req, res) => {
     });
 });
 
-// Iniciar Servidor
 app.listen(PORT, () => {
     console.log(`Servidor API corriendo en http://localhost:${PORT}`);
 });
