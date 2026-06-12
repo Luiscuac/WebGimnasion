@@ -30,11 +30,7 @@ export default function Home() {
             Comenzar ahora
           </button>
         </Link>
-        <img
-          src={heroImg}
-          alt="Persona entrenando en el gimnasio con GymFlow"
-          className="hero-img"
-        />
+        
       </div>
     </div>
   );
