@@ -21,3 +21,10 @@ export interface Ejercicio {
   series: number;
   repeticiones: number;
 }
+
+// DATOS PARA REGISTRO
+export interface RegisterData {
+  username: string;
+  password: string;
+  nombre: string;
+}

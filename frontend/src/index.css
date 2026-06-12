@@ -418,8 +418,10 @@ a {
 
 /* h3 de rol (fuente más pequeña) */
 .stat-card-role {
-  font-size: 1rem;
+  font-size: 1rem !important;
   margin-top: 0.25rem;
+  word-break: break-word;
+  line-height: 1.3;
 }
 
 .stat-card p {
@@ -759,7 +761,7 @@ tbody td {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
 }
@@ -881,6 +883,10 @@ tbody td {
     grid-template-columns: 1fr;
   }
 
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
   .card-profile {
     max-width: 100%;
   }
@@ -899,4 +905,209 @@ tbody td {
   .table-actions {
     flex-direction: column;
   }
+}
+
+/* ===========================
+   DASHBOARD - NUEVOS ESTILOS
+=========================== */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 2rem 0 1rem;
+}
+
+.card-highlight {
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-color: transparent;
+}
+
+.card-highlight-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.card-highlight-icon {
+  font-size: 2rem;
+}
+
+.card-highlight-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1a1d1088;
+  margin-bottom: 0.2rem;
+}
+
+.card-highlight-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1a1d10;
+  text-transform: capitalize;
+}
+
+.quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+  .quick-links-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quick-link-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.quick-link-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.quick-link-icon {
+  font-size: 2rem;
+}
+
+.quick-link-body h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.quick-link-body p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.quick-link-btn {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.permission-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.permission-item.allowed {
+  background-color: rgba(39, 174, 96, 0.1);
+  color: var(--success);
+}
+
+.permission-item.denied {
+  background-color: rgba(192, 57, 43, 0.08);
+  color: var(--text-muted);
+}
+
+/* ===========================
+   PERFIL - NUEVOS ESTILOS
+=========================== */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.perfil-main-card,
+.perfil-permisos-card {
+  width: 100%;
+}
+
+.badge-admin {
+  background-color: var(--primary);
+  color: #1a1d10;
+}
+
+.badge-user {
+  background-color: var(--border);
+  color: var(--text-muted);
+}
+
+.perfil-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--success);
+  display: inline-block;
+}
+
+.perfil-permisos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.perfil-permiso-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.perfil-permiso-item.ok {
+  background-color: rgba(39, 174, 96, 0.1);
+  color: var(--success);
+}
+
+.perfil-permiso-item.no {
+  background-color: var(--bg);
+  color: var(--text-muted);
+}
+
+.perfil-permiso-icon {
+  font-size: 1rem;
+}
+
+.perfil-info-box {
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.6;
 }

@@ -3,44 +3,17 @@ import { getEjerciciosAPI } from "../services/apiService";
 import type { ExercicioAPI } from "../services/apiService";
 import { Helmet } from "react-helmet-async";
 
-const MUSCULOS = ["back", "chest", "legs", "shoulders", "arms", "core"];
-
 export default function ExploreAPI() {
-  const [todos, setTodos] = useState<ExercicioAPI[]>([]);
   const [ejercicios, setEjercicios] = useState<ExercicioAPI[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filtro, setFiltro] = useState("todos");
 
   useEffect(() => {
-    cargarEjercicios();
+    getEjerciciosAPI(40)
+      .then(setEjercicios)
+      .catch(() => setError("No se pudo conectar con la API pública."))
+      .finally(() => setLoading(false));
   }, []);
-
-  async function cargarEjercicios() {
-    setLoading(true);
-    setError("");
-    try {
-      const data = await getEjerciciosAPI(60);
-      setTodos(data);
-      setEjercicios(data);
-    } catch {
-      setError("No se pudo conectar con la API pública.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleFiltro(musculo: string) {
-    setFiltro(musculo);
-    if (musculo === "todos") {
-      setEjercicios(todos);
-    } else {
-      const filtrados = todos.filter((ej) =>
-        ej.bodyPart.toLowerCase().includes(musculo.toLowerCase())
-      );
-      setEjercicios(filtrados);
-    }
-  }
 
   return (
     <div>
@@ -59,28 +32,7 @@ export default function ExploreAPI() {
         <p>Catálogo de ejercicios desde la API pública ExerciseDB</p>
       </div>
 
-      <div className="filter-bar">
-        <button
-          className={`btn ${filtro === "todos" ? "btn-primary" : "btn-secondary"}`}
-          onClick={() => handleFiltro("todos")}
-        >
-          Todos
-        </button>
-        {MUSCULOS.map((m) => (
-          <button
-            key={m}
-            className={`btn ${filtro === m ? "btn-primary" : "btn-secondary"}`}
-            onClick={() => handleFiltro(m)}
-          >
-            {m.charAt(0).toUpperCase() + m.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {loading && (
-        <div className="loading-box">Cargando ejercicios...</div>
-      )}
-
+      {loading && <div className="loading-box">Cargando ejercicios...</div>}
       {error && <div className="alert-error">{error}</div>}
 
       {!loading && !error && (
@@ -90,20 +42,10 @@ export default function ExploreAPI() {
               <img src={ej.gifUrl} alt={ej.name} loading="lazy" />
               <div className="exercise-card-body">
                 <h4>{ej.name}</h4>
-                <div className="exercise-tags">
-                  <span className="exercise-tag">{ej.bodyPart}</span>
-                  <span className="exercise-tag">{ej.equipment}</span>
-                </div>
               </div>
             </div>
           ))}
         </div>
-      )}
-
-      {!loading && !error && ejercicios.length === 0 && (
-        <p className="text-muted">
-          No se encontraron ejercicios para este grupo muscular.
-        </p>
       )}
     </div>
   );
