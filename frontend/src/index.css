@@ -1187,3 +1187,129 @@ tbody td {
   border-radius: 8px;
   border: 1px solid var(--border);
 }
+
+/* ===========================
+   FOOTER PÚBLICO
+=========================== */
+.public-footer {
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem 1.5rem;
+  margin-top: auto;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto 2rem;
+}
+
+.footer-brand h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+.footer-brand p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.footer-links h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.footer-links ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.footer-links ul li,
+.footer-links ul a {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.footer-links ul a:hover {
+  color: var(--text);
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.footer-bottom p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.footer-bottom p:last-child {
+  font-style: italic;
+}
+
+/* ===========================
+   FOOTER PRIVADO
+=========================== */
+.private-footer {
+  border-top: 1px solid var(--border);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.private-footer p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.private-footer p:last-child {
+  font-style: italic;
+}
+
+/* RESPONSIVE FOOTER */
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .private-footer {
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+    padding: 1rem;
+  }
+}
+.public-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.public-main {
+  flex: 1;
+}
