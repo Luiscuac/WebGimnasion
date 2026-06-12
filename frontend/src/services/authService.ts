@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { LoginResponse, RegisterData } from "../types/auth";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://gymflow-backend-00hx.onrender.com/api";
 
 // FUNCIÓN DE LOGIN
 export async function login(

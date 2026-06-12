@@ -2,7 +2,7 @@ import axios from "axios";
 import type { Ejercicio } from "../types/auth";
 import { getToken } from "../utils/auth";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://gymflow-backend-00hx.onrender.com/api";
 
 function getHeaders() {
   return {
