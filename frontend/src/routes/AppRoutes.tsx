@@ -7,7 +7,7 @@ import Ejercicios from "../pages/Ejercicios";
 import ExploreAPI from "../pages/ExploreAPI";
 import Perfil from "../pages/Perfil";
 import NotFound from "../pages/NotFound";
-
+import Register from "../pages/Register";
 import PublicLayout from "../layouts/PublicLayout";
 import PrivateLayout from "../layouts/PrivateLayout";
 import PrivateRoute from "./PrivateRoute";
@@ -26,6 +26,14 @@ export default function AppRoutes() {
             element={
               <PublicRoute>
                 <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <Register />
               </PublicRoute>
             }
           />

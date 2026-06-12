@@ -4,6 +4,7 @@ import { login } from "../services/authService";
 import { saveToken, saveUser } from "../utils/auth";
 import { Helmet } from "react-helmet-async";
 
+
 export default function Login() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -86,6 +87,9 @@ export default function Login() {
             {loading ? "Ingresando..." : "Ingresar"}
           </button>
         </form>
+        <p className="register-link">
+          ¿No tienes cuenta? <a href="/register">Regístrate aquí</a>
+        </p>
       </div>
     </div>
   );
