@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# --- AÑADIDO PARA EL BACKEND Y GIMNASIO ---
+backend/node_modules/
+frontend/node_modules/
+gym.db
+.env
