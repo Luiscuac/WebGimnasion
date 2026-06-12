@@ -77,6 +77,11 @@ export default function PrivateNavbar() {
           <Link to="/perfil" className={isActive("/perfil")}>
             👤 Perfil
           </Link>
+          {user?.role === "Administrador" && (
+          <Link to="/usuarios" className={isActive("/usuarios")}>
+            👥 Gestión de Usuarios
+          </Link>
+          )}
         </nav>
 
         <div className="sidebar-bottom">

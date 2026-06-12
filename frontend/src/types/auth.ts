@@ -20,6 +20,7 @@ export interface Ejercicio {
   maquina: string;
   series: number;
   repeticiones: number;
+  
 }
 
 // DATOS PARA REGISTRO
@@ -27,4 +28,12 @@ export interface RegisterData {
   username: string;
   password: string;
   nombre: string;
+}
+
+// USUARIO PARA GESTIÓN (admin)
+export interface UsuarioGestion {
+  id: number;
+  username: string;
+  nombre: string;
+  role: string;
 }

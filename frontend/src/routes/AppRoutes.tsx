@@ -12,6 +12,7 @@ import PublicLayout from "../layouts/PublicLayout";
 import PrivateLayout from "../layouts/PrivateLayout";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
+import GestionUsuarios from "../pages/GestionUsuarios";
 
 export default function AppRoutes() {
   return (
@@ -47,8 +48,10 @@ export default function AppRoutes() {
             </PrivateRoute>
           }
         >
+          
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/ejercicios" element={<Ejercicios />} />
+          <Route path="/usuarios" element={<GestionUsuarios />} />
           <Route path="/explorar" element={<ExploreAPI />} />
           <Route path="/perfil" element={<Perfil />} />
         </Route>
