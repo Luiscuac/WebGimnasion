@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'mi_clave_secreta_para_el_gym'; 
 
 app.use(cors());
