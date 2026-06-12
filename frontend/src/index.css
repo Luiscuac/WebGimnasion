@@ -1111,3 +1111,15 @@ tbody td {
   color: var(--text-muted);
   line-height: 1.6;
 }
+
+.register-link {
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.register-link a {
+  color: var(--primary);
+  font-weight: 600;
+}
